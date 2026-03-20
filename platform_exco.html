@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Addvery App Platform: How & Why</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy:   #1E2761;
+    --blue:   #2563EB;
+    --ice:    #CADCFC;
+    --gold:   #F59E0B;
+    --white:  #FFFFFF;
+    --offwh:  #F0F4FF;
+    --dark:   #111827;
+    --muted:  #6B7280;
+    --green:  #059669;
+    --gbg:    #ECFDF5;
+    --purple: #7C3AED;
+    --teal:   #0D9488;
+    --amber:  #D97706;
+    --slate:  #475569;
+    --red:    #DC2626;
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0a0a14;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; overflow: hidden;
+  }
+  .deck {
+    position: relative; width: min(1120px, 96vw); aspect-ratio: 16/9;
+  }
+  .slide {
+    position: absolute; inset: 0; border-radius: 12px; overflow: hidden;
+    opacity: 0; pointer-events: none;
+    transition: opacity .4s ease, transform .4s ease;
+    transform: translateX(36px);
+    box-shadow: 0 28px 72px rgba(0,0,0,.55);
+  }
+  .slide.active  { opacity: 1; pointer-events: auto; transform: translateX(0); }
+  .slide.leaving { opacity: 0; transform: translateX(-36px); }
+
+  .nav { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+  .nav button {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    color: #fff; border-radius: 8px; padding: 9px 22px;
+    font-size: 13px; cursor: pointer; transition: background .2s;
+  }
+  .nav button:hover { background: rgba(255,255,255,.22); }
+  .nav button:disabled { opacity: .28; cursor: default; }
+  .nav .counter { color: rgba(255,255,255,.5); font-size: 13px; min-width: 64px; text-align: center; }
+  .progress { width: min(1120px,96vw); height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; margin-top: 10px; }
+  .progress-bar { height: 100%; background: var(--gold); border-radius: 2px; transition: width .4s ease; }
+
+  /* ── SHARED ── */
+  .si { width: 100%; height: 100%; display: flex; flex-direction: column; }
+  .hdr { background: var(--navy); padding: 0 36px; display: flex; align-items: center; flex-shrink: 0; height: 54px; gap: 14px; }
+  .hdr h2 { color: #fff; font-size: clamp(13px,1.85vw,19px); font-weight: 700; }
+  .hdr .tag { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; background: rgba(255,255,255,.15); color: var(--ice); border-radius: 4px; padding: 2px 8px; flex-shrink: 0; }
+  .bd { flex: 1; padding: 18px 36px 16px; overflow: hidden; display: flex; flex-direction: column; gap: 11px; }
+  .lead { font-size: clamp(11px,1.15vw,13px); color: var(--dark); line-height: 1.55; flex-shrink: 0; }
+
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
+
+  .card { background: #fff; border-radius: 9px; box-shadow: 0 2px 14px rgba(0,0,0,.07); overflow: hidden; }
+  .ch   { padding: 10px 14px; color: #fff; font-weight: 700; font-size: clamp(11px,1.1vw,13px); display: flex; align-items: center; gap: 8px; }
+  .cb   { background: #fff; padding: 11px 14px; font-size: clamp(10px,.97vw,12px); color: var(--dark); line-height: 1.55; }
+  .cb ul { list-style: none; }
+  .cb ul li { padding-left: 13px; position: relative; margin-bottom: 3px; }
+  .cb ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+
+  .note { font-size: clamp(10px,.95vw,11.5px); color: var(--navy); background: #EFF6FF; border-radius: 6px; padding: 7px 13px; font-style: italic; flex-shrink: 0; }
+  .note-green { font-size: clamp(10px,.95vw,11.5px); color: #065F46; background: var(--gbg); border-radius: 6px; padding: 7px 13px; flex-shrink: 0; }
+  .note-amber { font-size: clamp(10px,.95vw,11.5px); color: #92400E; background: #FEF3C7; border-radius: 6px; padding: 7px 13px; flex-shrink: 0; }
+
+  /* pill */
+  .pill { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 13px 16px; width: 100%; text-align: center; }
+  .pill-val { font-size: clamp(17px,2.3vw,24px); font-weight: 800; color: var(--gold); }
+  .pill-lbl { font-size: clamp(10px,.95vw,11.5px); color: var(--ice); margin-top: 4px; }
+
+  /* ══ S1 TITLE ══ */
+  #s1 { background: var(--navy); }
+  #s1 .lo { display: grid; grid-template-columns: 1fr 255px; height: 100%; }
+  #s1 .lft { padding: 46px 48px; display: flex; flex-direction: column; justify-content: center; }
+  #s1 .ab { width: 5px; height: 68px; background: var(--gold); border-radius: 3px; margin-bottom: 20px; }
+  #s1 h1 { font-size: clamp(22px,3.5vw,40px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 12px; }
+  #s1 .sub { font-size: clamp(12px,1.4vw,15px); color: var(--ice); margin-bottom: 22px; line-height: 1.5; }
+  #s1 .meta { font-size: 11px; color: #8BACD4; }
+  #s1 .rgt { background: rgba(37,99,235,.22); padding: 30px 18px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+
+  /* ══ S2 WHY ══ */
+  #s2 { background: var(--offwh); }
+  .why-row { display: flex; gap: 10px; margin-bottom: 8px; }
+  .why-row .ico { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .why-row h4 { font-size: clamp(11.5px,1.15vw,13px); font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .why-row p  { font-size: clamp(10px,.97vw,12px); color: var(--dark); line-height: 1.5; }
+
+  .verdict { border-radius: 8px; padding: 9px 13px; margin-bottom: 6px; display: flex; gap: 10px; align-items: flex-start; }
+  .verdict .vico { font-size: 16px; flex-shrink: 0; }
+  .verdict h4 { font-size: clamp(11px,1.05vw,12.5px); font-weight: 700; margin-bottom: 2px; }
+  .verdict p  { font-size: clamp(10px,.95vw,11.5px); line-height: 1.45; }
+
+  /* ══ S3 DB ARCH ══ */
+  #s6 { background: var(--offwh); }
+  .arch-wrap { display: grid; grid-template-columns: 1fr 180px 1fr; grid-template-rows: 1fr 1fr; gap: 10px; flex: 1; }
+  .core-box { grid-column: 2; grid-row: 1/3; background: var(--navy); border-radius: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 6px 8px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,.18); }
+  .core-box .ct { font-size: 9px; font-weight: 800; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .core-box .ci { font-size: 9.5px; color: var(--ice); line-height: 1.3; }
+  .app-box { border-radius: 9px; padding: 11px 13px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 2px 12px rgba(0,0,0,.1); position: relative; }
+  .app-box h3 { color: #fff; font-weight: 700; font-size: clamp(11px,1.05vw,13px); margin-bottom: 4px; }
+  .app-box ul { list-style: none; }
+  .app-box ul li { color: rgba(255,255,255,.8); font-size: 10.5px; line-height: 1.75; }
+  .app-box ul li::before { content: '·  '; }
+  .app-box .vtag { margin-top: 6px; font-size: 9.5px; background: rgba(255,255,255,.15); border-radius: 4px; padding: 3px 7px; color: rgba(255,255,255,.8); }
+  .cn { position: absolute; top: 50%; width: 11px; height: 2px; background: #94A3B8; }
+  .cn-r { right: -10px; } .cn-l { left: -10px; }
+
+  /* ══ S4 GATEWAY ══ */
+  #s8 { background: var(--offwh); }
+
+  /* ══ S5 GITHUB ══ */
+  #s7 { background: var(--offwh); }
+  .tree {
+    background: #0F172A; border-radius: 9px; padding: 14px 18px;
+    font-family: 'Consolas', 'Monaco', monospace; font-size: clamp(9.5px,.95vw,11px);
+    line-height: 1.85; color: #CBD5E1; flex: 1; overflow: hidden;
+    white-space: pre;
+  }
+  .tree .dir   { color: #93C5FD; font-weight: 700; }
+  .tree .file  { color: #CBD5E1; }
+  .tree .key   { color: #86EFAC; font-weight: 700; }
+  .tree .dim   { color: #475569; }
+  .tree .gold  { color: #FCD34D; }
+  .claude-note { background: #fff; border-radius: 9px; padding: 12px 15px; box-shadow: 0 2px 12px rgba(0,0,0,.07); flex: 1; }
+  .claude-note h4 { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 7px; padding-bottom: 6px; border-bottom: 1px solid #E5E7EB; }
+  .cfile { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 8px; }
+  .cfile-label { background: var(--navy); color: #fff; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+  .cfile p { font-size: clamp(10px,.93vw,11.5px); color: var(--dark); line-height: 1.5; }
+
+  /* ══ S6 WORKFLOW ══ */
+  #s3 { background: var(--offwh); }
+  .wf-step { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 9px; }
+  .wf-num { width: 28px; height: 28px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .wf-body h4 { font-size: clamp(11.5px,1.1vw,13px); font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .wf-body p  { font-size: clamp(10px,.95vw,11.5px); color: var(--dark); line-height: 1.5; }
+  .wf-connector { width: 2px; height: 7px; background: #E2E8F0; margin-left: 13px; margin-bottom: 2px; }
+
+  /* ══ S7 GOVERNANCE ══ */
+  #s4 { background: var(--offwh); }
+  .gcard { border-radius: 9px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+  .gcard-h { padding: 10px 14px; color: #fff; font-weight: 700; font-size: clamp(11px,1.05vw,13px); }
+  .gcard-b { background: #fff; padding: 10px 14px; font-size: clamp(10px,.95vw,11.5px); color: var(--dark); line-height: 1.65; }
+  .gcard-b ul { list-style: none; }
+  .gcard-b ul li { padding-left: 12px; position: relative; }
+  .gcard-b ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
+
+  /* ══ S8 SAFETY ══ */
+  #s5 { background: var(--offwh); }
+  .layer { background: #fff; border-radius: 8px; padding: 10px 13px; display: flex; gap: 11px; align-items: flex-start; box-shadow: 0 1px 7px rgba(0,0,0,.06); border-left: 4px solid var(--blue); }
+  .layer h4 { font-size: clamp(11px,1.05vw,13px); font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .layer p  { font-size: clamp(10px,.95vw,11.5px); color: var(--dark); line-height: 1.48; }
+  .layer .ico { font-size: 19px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ══ S9 CLOSE ══ */
+  #s9 { background: var(--navy); }
+  #s9 .lo { display: grid; grid-template-columns: 1fr 250px; height: 100%; }
+  #s9 .lft { padding: 42px 46px; display: flex; flex-direction: column; justify-content: center; }
+  #s9 .ab { width: 5px; height: 56px; background: var(--gold); border-radius: 3px; margin-bottom: 18px; }
+  #s9 h2 { font-size: clamp(15px,2vw,20px); color: var(--ice); font-weight: 700; margin-bottom: 9px; }
+  #s9 .hl { font-size: clamp(13px,1.7vw,18px); color: #fff; font-weight: 700; margin-bottom: 18px; line-height: 1.35; }
+  #s9 .ci { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 9px; }
+  #s9 .ck { color: var(--gold); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  #s9 .ci p { color: rgba(255,255,255,.9); font-size: clamp(11px,1.1vw,13px); line-height: 1.4; }
+  #s9 .rgt { background: rgba(37,99,235,.18); padding: 32px 22px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  #s9 .ns { display: flex; gap: 13px; align-items: flex-start; }
+  #s9 .nn { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: var(--navy); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  #s9 .nt { color: var(--ice); font-size: clamp(11px,1.05vw,12.5px); line-height: 1.4; }
+  #s9 .q { font-size: 14px; color: rgba(255,255,255,.3); font-style: italic; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ══════════════════════════════════════════════════════
+     S1 — TITLE
+══════════════════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="lo">
+    <div class="lft">
+      <div class="ab"></div>
+      <h1>Building Internal Apps<br>at Addvery</h1>
+      <p class="sub">The how and the why — architecture, tooling,<br>governance, and day-to-day workflow</p>
+      <p class="meta">March 2026 &nbsp;·&nbsp; Decision already made: we vibe code. This is how.</p>
+    </div>
+    <div class="rgt">
+      <div class="pill">
+        <div class="pill-val">10–15+</div>
+        <div class="pill-lbl">Apps in scope across one<br>shared database</div>
+      </div>
+      <div class="pill">
+        <div class="pill-val">1 repo</div>
+        <div class="pill-lbl">One GitHub monorepo,<br>all apps as subdirectories</div>
+      </div>
+      <div class="pill">
+        <div class="pill-val">Shared<br>review</div>
+        <div class="pill-lbl">2–4 builders, distributed<br>responsibility, AI-assisted</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S2 — WHY THIS STACK
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="si">
+    <div class="hdr"><h2>Why Supabase + Vercel?</h2><span class="tag">Stack Comparison</span></div>
+    <div class="bd">
+      <p class="lead">Vibe coding was already decided. The question is which services to build on. Four realistic stacks emerged — all viable for AI-assisted development, but only one gives the right balance of power and simplicity.</p>
+      <div class="g2" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="verdict" style="background:var(--gbg);">
+            <span class="vico">✓</span>
+            <div>
+              <h4 style="color:#065F46;">Supabase + Vercel — the chosen stack</h4>
+              <p style="color:#064E3B;"><strong>Database:</strong> PostgreSQL via Supabase (auth, storage, realtime built-in). <strong>Hosting:</strong> Vercel (best Next.js DX). <strong>Why it wins:</strong> PostgreSQL supports schemas, views, and RLS — the foundation of our architecture. Supabase gives enterprise DB features without ops overhead. Vercel deploys are instant. Microsoft SSO via NextAuth. Free tier generous, scales to ~$170/mo.</p>
+            </div>
+          </div>
+          <div class="verdict" style="background:#EFF6FF;">
+            <span class="vico">~</span>
+            <div>
+              <h4 style="color:#1E3A8A;">Azure PostgreSQL + Vercel — viable, but more work</h4>
+              <p style="color:#1E40AF;"><strong>Database:</strong> Azure Database for PostgreSQL (Flexible Server). <strong>Hosting:</strong> Vercel or Azure Static Web Apps. <strong>Why viable:</strong> Same PostgreSQL as Supabase — schemas, views, RLS all work identically. GDPR-compliant with EU regions. Good if you have Azure credits or compliance requirements. <strong>Why not chosen:</strong> Lose Supabase's batteries (auth, storage, realtime). You build auth via NextAuth, storage via Azure Blob + your own API. More infrastructure, less AI-friendly patterns. Cost similar (~$30-50/mo).</p>
+            </div>
+          </div>
+          <div class="verdict" style="background:#FFFBEB;">
+            <span class="vico">~</span>
+            <div>
+              <h4 style="color:#92400E;">Firebase + Vercel — popular but wrong data model</h4>
+              <p style="color:#78350F;"><strong>Database:</strong> Firestore (NoSQL). <strong>Hosting:</strong> Vercel. <strong>Why not:</strong> NoSQL can't do the complex joins, views, or schema isolation our architecture requires. Firestore is document-based — great for chat apps, wrong for integrated business systems. We'd end up fighting the data model. Firebase Auth is solid but doesn't change the verdict.</p>
+            </div>
+          </div>
+          <div class="verdict" style="background:#FEF2F2;">
+            <span class="vico">✗</span>
+            <div>
+              <h4 style="color:var(--red);">Railway — all-in-one simplicity, less flexibility</h4>
+              <p style="color:#7F1D1D;"><strong>Database + Hosting:</strong> Combined platform. <strong>Why not:</strong> Tighter coupling between DB and hosting means vendor lock-in. Less mature ecosystem than Vercel for Next.js. Combined billing makes cost allocation harder. If we need to move hosting later, the DB moves too. Separation of concerns (Supabase for data, Vercel for compute) gives us more optionality.</p>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--navy);border-radius:9px;padding:14px 16px;flex:1;">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">Requirements that narrowed the field</div>
+            <div class="why-row"><span class="ico">🗄️</span><div><h4 style="color:var(--ice);">PostgreSQL, not NoSQL</h4><p style="color:rgba(202,220,252,.75);">Schema-per-app isolation, SQL views for integration, Row Level Security — these aren't optional. Only PostgreSQL-based stacks survived.</p></div></div>
+            <div class="why-row"><span class="ico">🔗</span><div><h4 style="color:var(--ice);">One database, many apps</h4><p style="color:rgba(202,220,252,.75);">15+ apps reading from shared master data (employees, clients, projects). Needs proper relational constraints and transactional integrity.</p></div></div>
+            <div class="why-row"><span class="ico">🛡️</span><div><h4 style="color:var(--ice);">GDPR compliance for HR data</h4><p style="color:rgba(202,220,252,.75);">Both Supabase and Azure offer EU regions + DPA. Either works. We still build GDPR features (data export, deletion) in apps regardless of provider.</p></div></div>
+            <div class="why-row"><span class="ico">🏢</span><div><h4 style="color:var(--ice);">Microsoft SSO non-negotiable</h4><p style="color:rgba(202,220,252,.75);">All stacks support it via NextAuth or similar — not a differentiator, but eliminated options without OAuth flexibility.</p></div></div>
+            <div class="why-row"><span class="ico">⚡</span><div><h4 style="color:var(--ice);">Batteries included > build it yourself</h4><p style="color:rgba(202,220,252,.75);">Supabase gives auth, storage, realtime out of the box. Azure PostgreSQL is just a database — you build everything else. For vibe coding, fewer moving parts wins.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S3 — HOW BUILDING ACTUALLY WORKS
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="si">
+    <div class="hdr"><h2>How Building Actually Works: Day-to-Day Workflow</h2><span class="tag">Builder Workflow</span></div>
+    <div class="bd">
+      <p class="lead">You can build and test freely without review — dev database is yours to break and reset. Only pushing to production requires peer approval. Claude writes code, you iterate locally, then one human checks before it goes live.</p>
+      <div class="g2" style="flex:1;">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.7px;">From idea to production</div>
+          <div class="wf-step">
+            <div class="wf-num" style="background:var(--navy);">1</div>
+            <div class="wf-body"><h4>Open Claude Code in your app folder</h4><p><code style="background:#F1F5F9;padding:1px 4px;border-radius:3px;font-size:10px;">apps/timesheets/</code> — Claude reads CLAUDE.md automatically, connects to dev database.</p></div>
+          </div>
+          <div class="wf-connector"></div>
+          <div class="wf-step">
+            <div class="wf-num" style="background:var(--blue);">2</div>
+            <div class="wf-body"><h4>Describe & iterate</h4><p>Plain English. Claude generates code, runs migrations on dev, shows result. Break dev freely — reset in &lt;1 min.</p></div>
+          </div>
+          <div class="wf-connector"></div>
+          <div class="wf-step">
+            <div class="wf-num" style="background:var(--purple);">3</div>
+            <div class="wf-body"><h4>Push → Pull Request→ preview URL</h4><p>Vercel creates a live preview automatically. Pre-commit hooks format code before it leaves your machine.</p></div>
+          </div>
+          <div class="wf-connector"></div>
+          <div class="wf-step">
+            <div class="wf-num" style="background:var(--teal);">4</div>
+            <div class="wf-body"><h4>Automated checks run</h4><p>Claude Code Review, ESLint, tests, Atlas migration linting — findings appear on the Pull Requestin ~3 minutes.</p></div>
+          </div>
+          <div class="wf-connector"></div>
+          <div class="wf-step">
+            <div class="wf-num" style="background:var(--green);">5</div>
+            <div class="wf-body"><h4>Approve → merge → live</h4><p>One reviewer (from 2-4 pool) checks Claude's findings + preview URL. Merge deploys to production automatically.</p></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--navy);border-radius:9px;padding:12px 14px;">
+            <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Two databases, always separate</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <div style="background:rgba(255,255,255,.08);border-radius:6px;padding:9px 10px;">
+                <div style="font-size:10px;font-weight:700;color:var(--ice);margin-bottom:4px;">🔧 Dev</div>
+                <div style="font-size:10px;color:rgba(202,220,252,.7);line-height:1.6;">Test data<br>Builders connect<br>Break freely<br>Reset &lt;1 min</div>
+              </div>
+              <div style="background:rgba(255,255,255,.08);border-radius:6px;padding:9px 10px;">
+                <div style="font-size:10px;font-weight:700;color:var(--gold);margin-bottom:4px;">🚀 Prod</div>
+                <div style="font-size:10px;color:rgba(202,220,252,.7);line-height:1.6;">Real data<br>No direct access<br>CI/CD only<br>Vercel secret</div>
+              </div>
+            </div>
+          </div>
+          <div class="note-green">🔄 <strong>Builder turnover solved:</strong> CLAUDE.md in each app documents schema & state. New builder has full context immediately.</div>
+          <div class="note">📋 <strong>No schema drift:</strong> all migrations in Git, prod never modified manually, weekly diff check.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S4 — GOVERNANCE: SHARED RESPONSIBILITY
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="si">
+    <div class="hdr"><h2>Governance: Shared Responsibility, No Single Bottleneck</h2><span class="tag">Governance</span></div>
+    <div class="bd">
+      <p class="lead">No dedicated technical lead — oversight is distributed across <strong>2–4 active builders</strong>. Claude Code Review does the deep technical analysis; humans verify the findings. The goal is light enough that nobody abandons it.</p>
+      <div class="g2" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">The shared reviewer model</div>
+          <div class="gcard">
+            <div class="gcard-h" style="background:var(--navy);">👥 Any Pull Requestneeds 1 approval from the reviewer pool</div>
+            <div class="gcard-b">Not a specific person — whoever has capacity. Reviewers read Claude Code Review's findings on the Pull Request, check the Vercel preview URL, and approve or request changes. The AI does the code audit; humans make the judgment call.</div>
+          </div>
+          <div class="gcard">
+            <div class="gcard-h" style="background:var(--purple);">🔒 Schema changes + financial logic need 2 approvals</div>
+            <div class="gcard-b">Tier 3 changes (database schema, auth, invoicing logic) require two separate approvals from the pool. Atlas migration linting runs automatically and flags destructive operations before any human sees the Pull Request.</div>
+          </div>
+          <div class="gcard">
+            <div class="gcard-h" style="background:var(--blue);">🤖 Claude Code Review is the first reviewer on everything</div>
+            <div class="gcard-b">Every Pull Request is automatically analysed for logic errors, security vulnerabilities, and convention violations. At Anthropic internally this lifted substantive review coverage from 16% to 54% of Pull Requests — with &lt;1% false positive rate.</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">Phased rollout — not all at once</div>
+          <div style="background:#F8FAFF;border-radius:9px;border:1px solid #E2E8F0;overflow:hidden;">
+            <div style="display:grid;grid-template-columns:80px 1fr;font-size:11px;">
+              <div style="background:var(--green);color:#fff;font-weight:700;padding:9px 10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;">Month<br>1</div>
+              <div style="padding:9px 12px;border-bottom:1px solid #E2E8F0;"><strong>Peer check only.</strong> Branch → Pull Request→ anyone glances → merge. Vercel preview URL is the review tool. Build the habit before adding automation.</div>
+              <div style="background:var(--blue);color:#fff;font-weight:700;padding:9px 10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;">Month<br>2–3</div>
+              <div style="padding:9px 12px;border-bottom:1px solid #E2E8F0;"><strong>Automated guardrails enabled.</strong> Same workflow, but now CI pipeline, Claude Code Review, and Atlas linting activate — pre-configured in the template repo, so it's just flipping a switch.</div>
+              <div style="background:var(--slate);color:#fff;font-weight:700;padding:9px 10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;">Only if<br>needed</div>
+              <div style="padding:9px 12px;color:var(--muted);"><strong>Full DevOps.</strong> Only if compliance requirements or 15+ active builders demand it. The single greatest threat is builders losing motivation — never add process that exceeds the actual risk.</div>
+            </div>
+          </div>
+          <div class="note-amber">⚠️ <strong>The biggest governance risk isn't a production bug</strong> — it's builders stopping because the process feels too heavy. The database safety layer (schema isolation, RLS, dev/prod separation) protects against worst-case scenarios at every governance level, making lighter oversight viable.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S5 — SAFETY NET
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="si">
+    <div class="hdr"><h2>The Safety Net: Protection That Doesn't Depend on Process</h2><span class="tag">Safety</span></div>
+    <div class="bd">
+      <p class="lead">This is the answer to the governance question. Database-level protection operates regardless of which governance model is running, regardless of who reviewed the code, and regardless of what Claude generated.</p>
+      <div class="g2" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">Always on — no process required</div>
+          <div class="layer" style="border-left-color:var(--blue);">
+            <span class="ico">🔒</span>
+            <div><h4>Schema isolation + role-based access</h4><p>Each builder's database role can only write to their own app's schema. Dropping a table in another app is physically impossible — the database rejects it. No review process can catch everything; this does.</p></div>
+          </div>
+          <div class="layer" style="border-left-color:var(--purple);">
+            <span class="ico">🛡️</span>
+            <div><h4>Row-Level Security (RLS)</h4><p>Database silently adds per-user filters to every query at the engine level. Even if Claude generates a query that forgets to filter by user, the data never leaks. Overhead: 1–5%, negligible for internal tools.</p></div>
+          </div>
+          <div class="layer" style="border-left-color:var(--teal);">
+            <span class="ico">🌍</span>
+            <div><h4>Dev / production separation</h4><p>Builders physically cannot connect to the production database — they don't have the connection string. It lives only in Vercel's env vars and GitHub Actions secrets. The worst a bad deploy can do is break the app; data is safe.</p></div>
+          </div>
+          <div class="layer" style="border-left-color:var(--amber);">
+            <span class="ico">📋</span>
+            <div><h4>Atlas migration linting</h4><p>Every database migration is automatically checked before it runs. DROP COLUMN, DROP TABLE, and other destructive operations are flagged and blocked. Runs in the CI pipeline — no human has to remember to check.</p></div>
+          </div>
+          <div class="layer" style="border-left-color:var(--green);">
+            <span class="ico">💾</span>
+            <div><h4>Automated backups + historization</h4><p>Supabase runs daily point-in-time backups (7-day retention on paid tier). Critical tables use PostgreSQL temporal tables to track changes — every edit creates a history record. Can restore to any minute or audit who changed what when.</p></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">Added by governance (layer on top)</div>
+          <div class="layer" style="border-left-color:var(--green);">
+            <span class="ico">🤖</span>
+            <div><h4>Claude Code Review (automated, every Pull Request)</h4><p>Application-level issues that the database can't catch: missing auth checks, business logic errors, vulnerable dependencies. Catches 1.7× more issues than human-only review of AI-generated code.</p></div>
+          </div>
+          <div class="layer" style="border-left-color:var(--slate);">
+            <span class="ico">👁️</span>
+            <div><h4>Human peer review (shared responsibility)</h4><p>Reads Claude's findings, checks the Vercel preview, approves or requests changes. Does not require technical expertise — the AI surfaces what needs attention.</p></div>
+          </div>
+          <div class="note" style="margin-top:auto;">💡 <strong>This is why lighter governance is viable.</strong> Schema isolation, RLS, and dev/prod separation protect against the most dangerous failure modes — data loss, cross-app corruption, accidental production changes — regardless of who reviewed the code. The governance layer catches quality and logic issues, not catastrophic ones.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S6 — THE DATABASE ARCHITECTURE
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="si">
+    <div class="hdr"><h2>The Database: One Instance, Many Schemas, One Source of Truth</h2><span class="tag">Core Architecture</span></div>
+    <div class="bd">
+      <p class="lead">A single PostgreSQL instance on Supabase. A <strong>core schema</strong> holds master data every app needs. Each app gets its own <strong>isolated schema</strong>. Apps share data through <strong>SQL views</strong> — not APIs, not webhooks, not message queues.</p>
+      <div class="arch-wrap">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="app-box" style="background:var(--blue);flex:1;">
+            <div class="cn cn-r"></div>
+            <h3>⏱ Timesheets</h3>
+            <ul><li>time_entries</li><li>timesheets</li><li>approvals</li></ul>
+            <div class="vtag">→ v_billable_hours_for_invoicing</div>
+          </div>
+          <div class="app-box" style="background:var(--purple);flex:1;">
+            <div class="cn cn-r"></div>
+            <h3>🏖 HR / Leave</h3>
+            <ul><li>leave_requests</li><li>leave_balances</li></ul>
+            <div class="vtag">→ v_approved_leave_for_timesheet</div>
+          </div>
+        </div>
+        <div class="core-box">
+          <div class="ct">Core Schema</div>
+          <div class="ci">👤 Employees<br>🏢 Clients<br>📁 Projects<br>🏬 Departments<br>💰 Billing Rates<br>🔑 Roles<br>📱 App registry</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="app-box" style="background:var(--teal);flex:1;">
+            <div class="cn cn-l"></div>
+            <h3>✈️ Travel & Expenses</h3>
+            <ul><li>trips, bookings</li><li>expense_reports</li></ul>
+            <div class="vtag">→ v_billable_expenses_for_invoicing</div>
+          </div>
+          <div class="app-box" style="background:var(--amber);flex:1;">
+            <div class="cn cn-l"></div>
+            <h3>🧾 Invoicing</h3>
+            <ul><li>invoices</li><li>line_items</li></ul>
+            <div class="vtag">← reads Time + Travel views</div>
+          </div>
+        </div>
+      </div>
+      <div class="note">💡 If Timesheets restructures its internal tables, it updates the view. Invoicing never breaks — no coordinated release needed. PostgreSQL handles 15+ schemas without issue. This is the same pattern Microsoft Dataverse uses for Power Platform.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S7 — GITHUB SETUP
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="si">
+    <div class="hdr"><h2>GitHub: One Monorepo, One Source of Truth</h2><span class="tag">Repository Structure</span></div>
+    <div class="bd">
+      <p class="lead">One repository. All apps in subdirectories. All migrations in one folder. Each app's CLAUDE.md gives Claude the context; root CLAUDE.md has shared rules.</p>
+      <div style="display:flex;gap:11px;flex:1;">
+        <div class="tree" style="flex:1;">
+<span class="dim">github.com/addvery/</span>
+<span class="dir">platform/</span>
+├── <span class="key">CLAUDE.md</span>              <span class="gold">👈 shared rules</span>
+├── <span class="dir">supabase/migrations/</span>  <span class="gold">👈 all schemas</span>
+│   ├── <span class="file">20260101_core.sql</span>
+│   ├── <span class="file">20260115_timesheets.sql</span>
+│   └── <span class="file">20260120_invoicing.sql</span>
+└── <span class="dir">apps/</span>
+    ├── <span class="dir">gateway/</span>
+    │   ├── <span class="key">CLAUDE.md</span>      <span class="gold">👈 gateway context</span>
+    │   └── <span class="dim">[Next.js app]</span>
+    ├── <span class="dir">timesheets/</span>
+    │   ├── <span class="key">CLAUDE.md</span>      <span class="gold">👈 timesheet context</span>
+    │   └── <span class="dim">[Next.js app]</span>
+    └── <span class="dir">invoicing/</span> <span class="dir">travel/</span> <span class="dir">hr/</span> <span class="dim">…</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:3px solid var(--navy);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px;">💾 All migrations in one folder</div>
+            <div style="font-size:10.5px;color:var(--dark);line-height:1.45;"><code style="background:#F1F5F9;padding:0 3px;border-radius:2px;font-size:10px;">supabase/migrations/</code> contains every schema change for every app. One timeline, one source of truth.</div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:3px solid var(--blue);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px;">📄 Each app has its own CLAUDE.md</div>
+            <div style="font-size:10.5px;color:var(--dark);line-height:1.45;">When you open Claude Code inside <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;font-size:10px;">apps/timesheets/</code>, it reads the schema, views, and rules automatically. No handover needed.</div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:3px solid var(--purple);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px;">🔗 Root CLAUDE.md = shared conventions</div>
+            <div style="font-size:10.5px;color:var(--dark);line-height:1.45;">Stack, database rules, naming conventions. Automatically inherited when working in any app subdirectory.</div>
+          </div>
+          <div class="note-amber" style="margin-top:2px;">⚡ Claude reads both files automatically when you work in an app folder. Zero configuration.</div>
+          <div class="note" style="margin-top:2px;">🔄 All apps under one Vercel team. ~$20/seat/month for active builders.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S8 — GATEWAY: INSIDER.ADDVERY.COM
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="si">
+    <div class="hdr"><h2>The Gateway: insider.addvery.com</h2><span class="tag">Context</span></div>
+    <div class="bd" style="display:flex;align-items:center;justify-content:center;">
+      <div style="max-width:800px;text-align:center;">
+        <p style="font-size:clamp(14px,1.8vw,18px);color:var(--navy);line-height:1.6;font-weight:500;">Stepan is building the entry point (insider.addvery.com) that handles Microsoft SSO and routes users to apps based on role — works with this architecture regardless of implementation approach.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S9 — WHAT NEEDS TO HAPPEN NOW
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="lo">
+    <div class="lft">
+      <div class="ab"></div>
+      <h2>What Needs to Happen Now</h2>
+      <p class="hl">The architecture is decided. The question is sequencing the setup before more apps are built without it.</p>
+      <div class="ci"><span class="ck">✦</span><p>Create the <strong>platform monorepo</strong> in the Addvery GitHub org with root CLAUDE.md, migrations folder, and CI template</p></div>
+      <div class="ci"><span class="ck">✦</span><p>Set up <strong>two Supabase projects</strong> (dev + prod) with Azure Entra ID OAuth configured</p></div>
+      <div class="ci"><span class="ck">✦</span><p>Create the <strong>Addvery Vercel team</strong> — all builders invited as members, one subscription, projects owned by the team</p></div>
+      <div class="ci"><span class="ck">✦</span><p>Design and deploy the <strong>core schema</strong> (employees, clients, projects, billing rates, app registry)</p></div>
+      <div class="ci"><span class="ck">✦</span><p><strong>Align in-progress apps</strong> (Timesheets, Financing, gateway) to the shared database before they build further standalone</p></div>
+      <div class="ci"><span class="ck">✦</span><p>Open call for <strong>2–4 volunteer builders</strong> willing to share review responsibility</p></div>
+      <p class="q">Questions?</p>
+    </div>
+    <div class="rgt">
+      <div style="font-size:13px;font-weight:700;color:#fff;text-align:center;margin-bottom:6px;">From IT / ExCo</div>
+      <div class="ns"><div class="nn">1</div><div class="nt">Register app in <strong>Azure Entra ID</strong> for OAuth (~1 hour IT task)</div></div>
+      <div class="ns"><div class="nn">2</div><div class="nt">Approve <strong>GitHub, Vercel & Supabase</strong> as vendors</div></div>
+      <div class="ns"><div class="nn">3</div><div class="nt">Confirm data classification for employee & financial data</div></div>
+      <div class="ns"><div class="nn">4</div><div class="nt">Approve <strong>~$170/mo</strong> infrastructure (starts free)</div></div>
+      <div style="height:1px;background:rgba(255,255,255,.12);margin:6px 0;"></div>
+      <div style="font-size:13px;font-weight:700;color:#fff;text-align:center;margin-bottom:6px;">From the builder team</div>
+      <div class="ns"><div class="nn" style="background:var(--teal);">5</div><div class="nt">Stand up monorepo + core schema this week</div></div>
+      <div class="ns"><div class="nn" style="background:var(--teal);">6</div><div class="nt">Migrate in-progress apps to shared database</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S10 — APPENDIX: TECHNICAL DEEP DIVES
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="si" style="background:var(--navy);">
+    <div class="bd" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 40px;">
+      <div style="width:6px;height:80px;background:var(--gold);border-radius:3px;margin-bottom:30px;"></div>
+      <h2 style="font-size:clamp(20px,3vw,36px);font-weight:800;color:#fff;margin-bottom:20px;text-align:center;">Technical Deep Dives</h2>
+      <p style="font-size:clamp(13px,1.5vw,16px);color:var(--ice);text-align:center;max-width:700px;margin-bottom:40px;">The following slides provide additional detail on request</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;width:100%;">
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:18px 22px;border-left:4px solid var(--gold);">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📂 Gateway Implementation Options</div>
+          <div style="font-size:12px;color:var(--ice);line-height:1.5;">Directory vs. umbrella approaches with technical tradeoffs</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:18px 22px;border-left:4px solid var(--blue);">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📄 CLAUDE.md Examples</div>
+          <div style="font-size:12px;color:var(--ice);line-height:1.5;">Actual content examples for root and app-specific files</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:18px 22px;border-left:4px solid var(--purple);">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">🗄️ Database Views & RLS Code</div>
+          <div style="font-size:12px;color:var(--ice);line-height:1.5;">SQL examples showing how views and row-level security work</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:18px 22px;border-left:4px solid var(--teal);">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">💰 Detailed Cost Breakdown</div>
+          <div style="font-size:12px;color:var(--ice);line-height:1.5;">Line-by-line budget and ROI calculation</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:18px 22px;border-left:4px solid var(--green);">
+          <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;">📜 Migration History & Schema Memory</div>
+          <div style="font-size:12px;color:var(--ice);line-height:1.5;">How Git becomes your database evolution audit trail</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S11 — GATEWAY IMPLEMENTATION OPTIONS
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="si">
+    <div class="hdr" style="background:var(--slate);"><h2>Gateway Implementation Options</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">Two viable approaches for insider.addvery.com — both work with this architecture. Choice depends on team coordination preferences and UX priorities.</p>
+      <div class="g2" style="flex:1;">
+        <div class="card">
+          <div class="ch" style="background:var(--navy);">📂 Option A: Directory <span style="font-size:10px;background:rgba(255,215,0,.2);color:var(--gold);border-radius:4px;padding:1px 7px;margin-left:6px;font-weight:700;">Start here</span></div>
+          <div class="cb">
+            Lightweight app: handles <strong>auth and navigation only</strong>. Users log in, see a grid of apps relevant to their role, click through to each app's own URL.
+            <ul style="margin-top:8px;">
+              <li>Each app is a separate Next.js project, deployed independently</li>
+              <li>App registry lives in the core DB: name, URL, icon, allowed roles</li>
+              <li>Role access is a simple <code style="background:#F1F5F9;padding:1px 4px;border-radius:3px;font-size:10px;">app_access(app_id, role_id)</code> table</li>
+              <li>Microsoft SSO tokens shared across apps on the same domain</li>
+              <li>Gateway itself rarely changes once set up — trivially simple</li>
+              <li style="color:var(--muted);">Downside: navigation between apps feels like separate page loads</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch" style="background:var(--slate);">🏢 Option B: Umbrella shell <span style="font-size:10px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.65);border-radius:4px;padding:1px 7px;margin-left:6px;font-weight:700;">Grow into this</span></div>
+          <div class="cb">
+            Shared shell with <strong>persistent sidebar, top bar, and notifications</strong> — the Microsoft 365 portal pattern. All apps in one Next.js monorepo as route groups sharing layout and auth session.
+            <ul style="margin-top:8px;">
+              <li>Seamless navigation — no page reloads between apps</li>
+              <li>Consistent design system enforced by shared layout</li>
+              <li>Downside: all apps deploy together — change in one redeploys all</li>
+              <li>More complex to coordinate across multiple builders</li>
+              <li>Better UX once the app portfolio is mature</li>
+              <li style="color:var(--muted);">Micro-frontends can preserve independent deploys but add complexity</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="note-green">✅ <strong>Non-negotiable regardless of option:</strong> authentication + role-based access from day one. First version is just three tables: apps, roles, app_access + Microsoft SSO.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S12 — CLAUDE.MD EXAMPLES
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div class="si">
+    <div class="hdr" style="background:var(--blue);"><h2>CLAUDE.md: Actual Content Examples</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">Concrete examples showing what goes in each CLAUDE.md file and how Claude uses them automatically.</p>
+      <div class="g2" style="flex:1;gap:14px;">
+        <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-family:'Consolas',monospace;font-size:10.5px;line-height:1.75;overflow:auto;">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:10px;">📄 platform/CLAUDE.md (root)</div>
+          <div style="color:#94A3B8;"># Platform Conventions</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Stack</span></div>
+          <div>- Next.js 14+ (App Router)</div>
+          <div>- Supabase PostgreSQL</div>
+          <div>- Vercel deployment</div>
+          <div>- TypeScript strict mode</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Database Rules</span></div>
+          <div>- NEVER connect to prod directly</div>
+          <div>- Use <span style="color:#FCD34D;">DATABASE_URL</span> env var</div>
+          <div>- All schema changes via migrations</div>
+          <div>- Never hardcode credentials</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Naming Conventions</span></div>
+          <div>- Tables: snake_case</div>
+          <div>- Views: v_descriptive_name</div>
+          <div>- Schemas: app_name (e.g. timesheets)</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## What NEVER to do</span></div>
+          <div>- No microservices</div>
+          <div>- No custom auth (use Supabase)</div>
+          <div>- No API calls between apps (use views)</div>
+        </div>
+        <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-family:'Consolas',monospace;font-size:10.5px;line-height:1.75;overflow:auto;">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:10px;">📄 apps/timesheets/CLAUDE.md</div>
+          <div style="color:#94A3B8;"># Timesheets App</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Schema: timesheets</span></div>
+          <div><span style="color:#93C5FD;">Tables:</span></div>
+          <div>- time_entries (user_id, project_id, hours, date)</div>
+          <div>- timesheets (user_id, week_start, status)</div>
+          <div>- approvals (timesheet_id, approver_id)</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Views We Expose</span></div>
+          <div><span style="color:#FCD34D;">v_billable_hours_for_invoicing</span></div>
+          <div>SELECT project_id, SUM(hours), billing_rate</div>
+          <div>FROM timesheets.time_entries</div>
+          <div>JOIN core.projects USING (project_id)</div>
+          <div>WHERE approved = true</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Views We Read</span></div>
+          <div>- core.v_active_projects</div>
+          <div>- hr.v_approved_leave_for_timesheet</div>
+          <div style="margin-top:8px;"><span style="color:#86EFAC;">## Business Rules</span></div>
+          <div>- Max 24 hours per day</div>
+          <div>- Can't log time on archived projects</div>
+          <div>- Approved timesheets are immutable</div>
+        </div>
+      </div>
+      <div class="note-amber">⚡ When you work in <code style="background:rgba(0,0,0,.08);padding:1px 4px;border-radius:3px;font-size:10px;">apps/timesheets/</code>, Claude reads both files automatically and knows all of this context without being told.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S13 — DATABASE VIEWS & RLS EXAMPLES
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="si">
+    <div class="hdr" style="background:var(--purple);"><h2>Database Views & RLS: How It Actually Works</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">SQL examples showing how apps share data through views and how Row-Level Security prevents data leaks even when code has bugs.</p>
+      <div class="g2" style="flex:1;gap:14px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-family:'Consolas',monospace;font-size:10px;line-height:1.75;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:8px;">View Example: Invoicing reads Timesheets</div>
+            <div style="color:#86EFAC;">CREATE VIEW timesheets.v_billable_hours</div>
+            <div style="color:#86EFAC;">AS SELECT</div>
+            <div>  te.project_id,</div>
+            <div>  p.client_id,</div>
+            <div>  SUM(te.hours) AS total_hours,</div>
+            <div>  p.billing_rate</div>
+            <div style="color:#86EFAC;">FROM</div>
+            <div>  timesheets.time_entries te</div>
+            <div style="color:#86EFAC;">JOIN</div>
+            <div>  core.projects p USING (project_id)</div>
+            <div style="color:#86EFAC;">WHERE</div>
+            <div>  te.approved = true</div>
+            <div>  AND te.billed = false</div>
+            <div style="color:#86EFAC;">GROUP BY</div>
+            <div>  te.project_id, p.client_id, p.billing_rate;</div>
+            <div style="margin-top:10px;color:#94A3B8;">-- Invoicing app just reads this view.</div>
+            <div style="color:#94A3B8;">-- If Timesheets changes internal tables,</div>
+            <div style="color:#94A3B8;">-- they update the view. Invoicing never breaks.</div>
+          </div>
+          <div class="note">💡 Views are the integration layer. No APIs, no webhooks, no message queues — just SQL.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-family:'Consolas',monospace;font-size:10px;line-height:1.75;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:8px;">RLS Example: Users only see their own data</div>
+            <div style="color:#86EFAC;">ALTER TABLE timesheets.time_entries</div>
+            <div style="color:#86EFAC;">ENABLE ROW LEVEL SECURITY;</div>
+            <div style="margin-top:8px;"></div>
+            <div style="color:#86EFAC;">CREATE POLICY user_own_entries ON</div>
+            <div>  timesheets.time_entries</div>
+            <div style="color:#86EFAC;">FOR ALL USING (</div>
+            <div>  auth.uid() = user_id</div>
+            <div>  OR auth.has_role('manager')</div>
+            <div style="color:#86EFAC;">);</div>
+            <div style="margin-top:10px;color:#94A3B8;">-- Even if Claude generates bad code:</div>
+            <div style="color:#FCA5A5;">SELECT * FROM time_entries;</div>
+            <div style="color:#94A3B8;">-- PostgreSQL silently adds:</div>
+            <div style="color:#86EFAC;">WHERE user_id = current_user_id()</div>
+            <div style="margin-top:6px;color:#94A3B8;">-- Data never leaks. Engine-level protection.</div>
+          </div>
+          <div class="note-green">🛡️ RLS runs at the database engine level with 1-5% overhead — negligible for internal tools. Even buggy code can't leak data.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S14 — COST BREAKDOWN
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="si">
+    <div class="hdr" style="background:var(--teal);"><h2>Detailed Cost Breakdown & ROI</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">Line-by-line budget showing how we get to ~$170/month at scale, compared to $2,000-2,400/month for equivalent SaaS subscriptions.</p>
+      <div class="g2" style="flex:1;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--teal);">Infrastructure Costs (Monthly)</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">Supabase (2 projects: dev + prod)</span>
+              <span style="font-weight:700;color:var(--navy);">$0 → $50</span>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-left:12px;">Free tier covers dev. Prod starts free, scales to Pro ($25/project) only if needed</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">Vercel Team (2-4 active builders)</span>
+              <span style="font-weight:700;color:var(--navy);">$20 → $80</span>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-left:12px;">$20/seat/month. Only pay for active builders. Remove inactive = cost drops.</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">GitHub (already covered)</span>
+              <span style="font-weight:700;color:var(--navy);">$0</span>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;margin-left:12px;">Existing org license covers this</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;padding-top:8px;border-top:1px solid #E5E7EB;">
+              <span style="color:var(--dark);font-weight:700;">Total Infrastructure</span>
+              <span style="font-weight:800;color:var(--teal);font-size:13px;">$20 → $130/mo</span>
+            </div>
+          </div>
+          <div style="background:#ECFDF5;border-radius:9px;padding:14px 16px;border:2px solid var(--green);">
+            <div style="font-size:12px;font-weight:700;color:#065F46;margin-bottom:8px;">Cost Scales with Builders, Not Users</div>
+            <div style="font-size:11px;color:#064E3B;line-height:1.6;">Going from 70 to 200 users costs <strong>nothing extra</strong>. Only adding builders increases spend. This is the key economic advantage over per-user SaaS.</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #DC2626;">Current SaaS Spend (Estimated)</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">Timesheet SaaS (200 users)</span>
+              <span style="font-weight:700;color:#7F1D1D;">~$600/mo</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">Expense management (200 users)</span>
+              <span style="font-weight:700;color:#7F1D1D;">~$500/mo</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">HR/Leave tracking (200 users)</span>
+              <span style="font-weight:700;color:#7F1D1D;">~$400/mo</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+              <span style="color:var(--dark);">Other specialized tools</span>
+              <span style="font-weight:700;color:#7F1D1D;">~$500/mo</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;padding-top:8px;border-top:1px solid #E5E7EB;">
+              <span style="color:var(--dark);font-weight:700;">Total SaaS Spend</span>
+              <span style="font-weight:800;color:#DC2626;font-size:13px;">~$2,000/mo</span>
+            </div>
+          </div>
+          <div style="background:var(--navy);border-radius:9px;padding:20px;text-align:center;">
+            <div style="font-size:11px;color:var(--ice);margin-bottom:8px;">Monthly Savings (at scale)</div>
+            <div style="font-size:32px;font-weight:800;color:var(--gold);margin-bottom:4px;">~$1,870</div>
+            <div style="font-size:11px;color:var(--ice);">Annual: ~$22,400</div>
+          </div>
+          <div class="note-amber">⚠️ Cost savings are a bonus, not the reason. The reason is: integrated data, no vendor lock-in, infinite customization, AI leverage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S15 — MIGRATION HISTORY & SCHEMA MEMORY
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s15">
+  <div class="si">
+    <div class="hdr" style="background:var(--green);"><h2>Migration History: Your Database Evolution Audit Trail</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">Every schema change lives in Git as a timestamped migration file. This creates a permanent, auditable record of how the database evolved — critical for compliance, onboarding, and preventing schema drift.</p>
+      <div class="g2" style="flex:1;gap:14px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-family:'Consolas',monospace;font-size:10px;line-height:1.75;overflow:auto;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:8px;">📁 supabase/migrations/ (in Git)</div>
+            <div style="color:#94A3B8;">20260101120000_create_core_schema.sql</div>
+            <div style="color:#94A3B8;">20260108093000_create_timesheets_schema.sql</div>
+            <div style="color:#94A3B8;">20260115141500_add_approval_workflow.sql</div>
+            <div style="color:#94A3B8;">20260122160000_create_invoicing_schema.sql</div>
+            <div style="color:#94A3B8;">20260205103000_add_billable_view.sql</div>
+            <div style="margin-top:10px;color:#86EFAC;">-- Every change = one file, timestamped</div>
+            <div style="color:#86EFAC;">-- Git tracks: who, when, why (commit msg)</div>
+            <div style="color:#86EFAC;">-- Can recreate DB from scratch: run in order</div>
+          </div>
+          <div style="background:#ECFDF5;border-radius:9px;padding:13px 15px;border-left:3px solid var(--green);">
+            <div style="font-size:11px;font-weight:700;color:#065F46;margin-bottom:6px;">Example: Understanding a Mystery Column</div>
+            <div style="font-size:10.5px;color:#064E3B;line-height:1.5;">New builder asks: "Why does invoices table have a reconciliation_status column?" You don't remember. Git blame → migration file → commit message: "Added for quarterly audit reconciliation per Finance team request (ticket #892)." Full context, instantly.</div>
+          </div>
+          <div style="background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;">What Migration History Gives You</div>
+            <ul style="list-style:none;font-size:10.5px;color:var(--dark);line-height:1.75;">
+              <li style="padding-left:14px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--green);">✓</span> <strong>Audit trail:</strong> Compliance can see who changed what when</li>
+              <li style="padding-left:14px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--green);">✓</span> <strong>Onboarding:</strong> New builders read migrations to understand schema</li>
+              <li style="padding-left:14px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--green);">✓</span> <strong>Disaster recovery:</strong> Restore from backup, replay migrations</li>
+              <li style="padding-left:14px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--green);">✓</span> <strong>Schema drift detection:</strong> Compare dev vs prod migrations</li>
+              <li style="padding-left:14px;position:relative;"><span style="position:absolute;left:0;color:var(--green);">✓</span> <strong>Rollback safety:</strong> Know exactly what each migration did</li>
+            </ul>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--navy);">How It Works in Practice</div>
+            <div style="margin-bottom:10px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:4px;">1. Claude generates a migration</div>
+              <div style="background:#F1F5F9;border-radius:6px;padding:8px 10px;font-family:'Consolas',monospace;font-size:9.5px;color:#0F172A;line-height:1.6;">
+                ALTER TABLE timesheets.time_entries<br>
+                ADD COLUMN overtime_approved BOOLEAN;
+              </div>
+            </div>
+            <div style="margin-bottom:10px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:4px;">2. Saved as timestamped file</div>
+              <div style="background:#F1F5F9;border-radius:6px;padding:8px 10px;font-family:'Consolas',monospace;font-size:9.5px;color:#0F172A;">
+                20260320_add_overtime_approval.sql
+              </div>
+            </div>
+            <div style="margin-bottom:10px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:4px;">3. Committed to Git with context</div>
+              <div style="background:#F1F5F9;border-radius:6px;padding:8px 10px;font-family:'Consolas',monospace;font-size:9.5px;color:#0F172A;line-height:1.6;">
+                git commit -m "Add overtime approval<br>
+                field to support new labor law<br>
+                compliance requirements"
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10.5px;font-weight:700;color:var(--navy);margin-bottom:4px;">4. Applied to dev, then prod via CI</div>
+              <div style="background:#F1F5F9;border-radius:6px;padding:8px 10px;font-family:'Consolas',monospace;font-size:9.5px;color:#0F172A;line-height:1.6;">
+                supabase db push<br>
+                <span style="color:#059669;">✓ Migration applied</span><br>
+                <span style="color:#94A3B8;"># Prod happens on merge to main</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#FEF2F2;border-radius:9px;padding:13px 15px;border-left:3px solid #DC2626;">
+            <div style="font-size:11px;font-weight:700;color:#7F1D1D;margin-bottom:6px;">What This Prevents</div>
+            <div style="font-size:10.5px;color:#991B1B;line-height:1.55;">
+              <strong>Schema drift:</strong> "Prod has columns dev doesn't" becomes impossible — migrations are the single source of truth. Weekly <code style="background:rgba(0,0,0,.08);padding:0 3px;border-radius:2px;font-size:9.5px;">supabase db diff</code> confirms they match. No manual SQL in prod ever.
+            </div>
+          </div>
+          <div class="note">💡 <strong>Migration files are immutable once merged.</strong> Never edit old migrations — write a new one. This preserves the timeline. Git history + migration files = complete database evolution story.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S16 — DEV / PROD DATABASE SEPARATION
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s16">
+  <div class="si">
+    <div class="hdr" style="background:var(--amber);"><h2>Dev / Prod Database Separation: Your Safety Baseline</h2><span class="tag">Deep Dive</span></div>
+    <div class="bd">
+      <p class="lead">Two completely separate Supabase projects — one for building and breaking things, one for real user data. This separation is the foundation of every other safety measure.</p>
+      <div class="g2" style="flex:1;gap:14px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--navy);border-radius:9px;padding:14px 16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--gold);">🔧 Development Database</div>
+            <div style="font-size:11px;color:var(--ice);line-height:1.65;margin-bottom:8px;"><strong>Purpose:</strong> Builder playground. Test features, run migrations, break things freely.</div>
+            <div style="background:rgba(255,255,255,.08);border-radius:6px;padding:10px 12px;margin-bottom:8px;">
+              <div style="font-size:10.5px;font-weight:700;color:#fff;margin-bottom:6px;">What lives here:</div>
+              <ul style="list-style:none;font-size:10px;color:rgba(202,220,252,.85);line-height:1.7;margin:0;padding:0;">
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> Fake/seed data only</li>
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> Test users, test projects, test invoices</li>
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> Every builder has full access</li>
+                <li style="padding-left:14px;position:relative;"><span style="position:absolute;left:0;">•</span> Reset anytime with <code style="background:rgba(0,0,0,.2);padding:0 3px;border-radius:2px;font-size:9.5px;">supabase db reset</code></li>
+              </ul>
+            </div>
+            <div style="background:#ECFDF5;border-radius:6px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:#065F46;margin-bottom:4px;">Connection string in:</div>
+              <div style="font-family:'Consolas',monospace;font-size:9.5px;color:#064E3B;line-height:1.6;">
+                .env.local (each builder's machine)<br>
+                <span style="color:#059669;">DATABASE_URL=supabase-dev-...</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;">Why This Matters</div>
+            <div style="font-size:10.5px;color:var(--dark);line-height:1.6;">
+              Builders can experiment without fear. Bad migration? <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;font-size:10px;">supabase db reset</code> and you're back to clean state in 30 seconds. This removes the psychological barrier to trying things.
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--navy);border-radius:9px;padding:14px 16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--gold);">🚀 Production Database</div>
+            <div style="font-size:11px;color:var(--ice);line-height:1.65;margin-bottom:8px;"><strong>Purpose:</strong> Real user data. Changed only via CI/CD pipeline after approval.</div>
+            <div style="background:rgba(255,255,255,.08);border-radius:6px;padding:10px 12px;margin-bottom:8px;">
+              <div style="font-size:10.5px;font-weight:700;color:#fff;margin-bottom:6px;">What lives here:</div>
+              <ul style="list-style:none;font-size:10px;color:rgba(202,220,252,.85);line-height:1.7;margin:0;padding:0;">
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> Real employee data, real timesheets</li>
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> Real invoices, real expenses</li>
+                <li style="padding-left:14px;position:relative;margin-bottom:3px;"><span style="position:absolute;left:0;">•</span> NO builder has direct access</li>
+                <li style="padding-left:14px;position:relative;"><span style="position:absolute;left:0;">•</span> Changed ONLY via merged Pull Requests</li>
+              </ul>
+            </div>
+            <div style="background:#FEF2F2;border-radius:6px;padding:10px 12px;">
+              <div style="font-size:10px;font-weight:700;color:#7F1D1D;margin-bottom:4px;">Connection string stored in:</div>
+              <div style="font-family:'Consolas',monospace;font-size:9.5px;color:#991B1B;line-height:1.6;">
+                Vercel environment variables (secret)<br>
+                GitHub Actions secrets (for CI/CD)<br>
+                <span style="color:#DC2626;">NOT in .env files, NOT on builder machines</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#FEF2F2;border-radius:9px;padding:13px 15px;border-left:3px solid #DC2626;">
+            <div style="font-size:11px;font-weight:700;color:#7F1D1D;margin-bottom:6px;">What This Prevents</div>
+            <div style="font-size:10.5px;color:#991B1B;line-height:1.55;">
+              <strong>Accidental data loss:</strong> Builder can't accidentally run a destructive migration against prod — they physically can't connect. <strong>Testing gone wrong:</strong> Even if a builder runs a delete script locally, it's hitting test data only. <strong>Schema experiments:</strong> Try a new column structure in dev first, see if it works, then promote to prod via Pull Request.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note-green" style="margin-top:10px;">✅ <strong>This is governance tier 0</strong> — it works regardless of whether you have peer review, automated checks, or full DevOps. Even with zero process, this separation alone prevents the worst disasters.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.deck -->
+
+<div class="progress"><div class="progress-bar" id="pb" style="width:11.1%;"></div></div>
+<div class="nav">
+  <button id="prevBtn" onclick="go(-1)" disabled>← Prev</button>
+  <span class="counter" id="ctr">1 / 16</span>
+  <button id="nextBtn" onclick="go(1)">Next →</button>
+</div>
+<div style="color:rgba(255,255,255,.28);font-size:11px;margin-top:9px;text-align:center;">← → arrow keys or buttons to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const N = slides.length;
+  let cur = 0;
+  function go(dir) {
+    slides[cur].classList.remove('active');
+    if (dir > 0) { slides[cur].classList.add('leaving'); setTimeout(() => slides[cur].classList.remove('leaving'), 420); }
+    cur = Math.max(0, Math.min(N - 1, cur + dir));
+    slides[cur].classList.add('active');
+    document.getElementById('ctr').textContent = (cur + 1) + ' / ' + N;
+    document.getElementById('prevBtn').disabled = cur === 0;
+    document.getElementById('nextBtn').disabled = cur === N - 1;
+    document.getElementById('pb').style.width = ((cur + 1) / N * 100) + '%';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  });
+</script>
+</body>
+</html>
