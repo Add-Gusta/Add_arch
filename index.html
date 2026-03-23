@@ -977,12 +977,199 @@
   </div>
 </div>
 
+
+<!-- ══════════════════════════════════════════════════════
+     S17 — GITHUB SETUP
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s17">
+  <div class="si">
+    <div class="hdr" style="background:#1a1a2e;"><h2>GitHub Setup: Repo, Branches &amp; Secrets</h2><span class="tag">Setup Guide</span></div>
+    <div class="bd">
+      <div class="g2" style="flex:1;gap:14px;">
+
+        <!-- LEFT: Architecture decisions -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--navy);">Architecture Decisions</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">📦</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Monorepo</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">One repo for all apps. Shared types, migrations, and CLAUDE.md in one place. Easier for AI to have full context.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🌿</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Branch strategy: feature → main</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Only <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">main</code> deploys to production. Every change goes through a Pull Request — no direct pushes.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🔒</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Branch protection on main</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Require at least 1 Pull Request review. Block force-pushes. This is the gate between dev and prod.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🤫</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Secrets never in code</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Supabase prod URL and service key live only in GitHub Actions secrets and Vercel env vars — never committed.</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="note-amber">⚠️ Add <code style="background:rgba(0,0,0,.07);padding:0 3px;border-radius:2px;">.env.local</code> to <code style="background:rgba(0,0,0,.07);padding:0 3px;border-radius:2px;">.gitignore</code> before your first commit. Non-negotiable.</div>
+        </div>
+
+        <!-- RIGHT: Step-by-step -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-size:10.5px;line-height:1.8;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:10px;font-size:11px;">Step-by-step</div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">1.</span> Create repo on github.com → <em>New repository</em><br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Name: e.g. <code>addvery-platform</code> | Private | No template</span></div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">2.</span> Clone and initialise monorepo structure<br>
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                git clone git@github.com:org/addvery-platform.git<br>
+                mkdir apps supabase<br>
+                touch CLAUDE.md .env.local .gitignore
+              </div>
+            </div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">3.</span> Enable branch protection<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Settings → Branches → Add rule → <code>main</code><br>☑ Require Pull Request review &nbsp;☑ Block force push</span></div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">4.</span> Add team members<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Settings → Collaborators → Invite builders as <em>Write</em></span></div>
+            <div><span style="color:#86EFAC;font-weight:700;">5.</span> Add GitHub Actions secrets<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Settings → Secrets → <code>SUPABASE_DB_URL</code>, <code>SUPABASE_SERVICE_KEY</code></span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S18 — SUPABASE SETUP
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s18">
+  <div class="si">
+    <div class="hdr" style="background:#1a8a5a;"><h2>Supabase Setup: Two Projects, One CLI</h2><span class="tag">Setup Guide</span></div>
+    <div class="bd">
+      <div class="g2" style="flex:1;gap:14px;">
+
+        <!-- LEFT: Architecture decisions -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--navy);">Architecture Decisions</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">✌️</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Two separate Supabase projects</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;"><code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">addvery-dev</code> for building, <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">addvery-prod</code> for real data. Different URLs, different keys, different access.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🗂️</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Schema per app, shared core</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Each app gets its own PostgreSQL schema (e.g. <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">timesheets</code>, <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">invoicing</code>). Shared employees/users live in <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">core</code>.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🛡️</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">RLS on every table from day one</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Enable Row-Level Security immediately. Add permissive policies while building, tighten later. Never leave RLS disabled.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🔑</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">anon key in app, service key only in CI</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">The <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">anon</code> key is safe to use in Next.js. The <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">service_role</code> key bypasses RLS — only for server-side CI/CD migration scripts.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Step-by-step -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-size:10.5px;line-height:1.8;flex:1;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:10px;font-size:11px;">Step-by-step</div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">1.</span> Create two projects on supabase.com<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">New project → <code>addvery-dev</code> &nbsp;|&nbsp; New project → <code>addvery-prod</code><br>Save both project URLs + anon keys + service keys</span></div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">2.</span> Install Supabase CLI + link dev
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                npm install supabase --save-dev<br>
+                npx supabase login<br>
+                npx supabase link --project-ref &lt;dev-ref&gt;
+              </div>
+            </div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">3.</span> Create your first migration
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                npx supabase migration new create_core_schema<br>
+                <span style="color:#475569;"># Edit the .sql file, then:</span><br>
+                npx supabase db push
+              </div>
+            </div>
+            <div><span style="color:#86EFAC;font-weight:700;">4.</span> Add env vars to <code>.env.local</code><br>
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                NEXT_PUBLIC_SUPABASE_URL=https://&lt;dev-ref&gt;.supabase.co<br>
+                NEXT_PUBLIC_SUPABASE_ANON_KEY=&lt;dev-anon-key&gt;
+              </div>
+            </div>
+          </div>
+          <div class="note-green">✅ Prod migrations run automatically on merge to <code style="background:rgba(0,0,0,.08);padding:0 3px;border-radius:2px;">main</code> via GitHub Actions — builders never touch prod directly.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S19 — VERCEL SETUP
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s19">
+  <div class="si">
+    <div class="hdr" style="background:#000;"><h2>Vercel Setup: Deploy, Preview &amp; Env Vars</h2><span class="tag">Setup Guide</span></div>
+    <div class="bd">
+      <div class="g2" style="flex:1;gap:14px;">
+
+        <!-- LEFT: Architecture decisions -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--navy);">Architecture Decisions</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🏢</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">One Vercel team, one project</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">The monorepo maps to a single Vercel project. All apps live under one deployment — internal routing handles the rest.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🌍</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Production = main only</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Only merges to <code style="background:#F1F5F9;padding:0 3px;border-radius:2px;">main</code> deploy to production. Every Pull Request gets its own preview URL automatically — great for review.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🔐</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Separate env vars per environment</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Vercel has three scopes: Production, Preview, Development. Prod Supabase keys go only into Production scope. Preview deployments use dev database.</div></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <span style="font-size:14px;flex-shrink:0;">🚪</span>
+                <div><div style="font-size:11px;font-weight:700;color:var(--dark);">Password-protect preview deployments</div><div style="font-size:10.5px;color:var(--muted);line-height:1.5;">Enable Vercel Authentication on preview URLs so only team members can access them. Internal apps should not be publicly accessible.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Step-by-step -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-size:10.5px;line-height:1.8;flex:1;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:10px;font-size:11px;">Step-by-step</div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">1.</span> Create team on vercel.com<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Settings → Team → Create &nbsp;|&nbsp; Invite builders</span></div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">2.</span> Import GitHub repository<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">New Project → Import Git Repository → select monorepo<br>Framework: Next.js (auto-detected)</span></div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">3.</span> Configure environment variables
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:7px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9px;color:#93C5FD;line-height:1.7;">
+                <span style="color:#FCD34D;"># Production scope only:</span><br>
+                NEXT_PUBLIC_SUPABASE_URL    → prod URL<br>
+                NEXT_PUBLIC_SUPABASE_ANON_KEY → prod anon<br>
+                <span style="color:#FCD34D;"># Preview + Development scope:</span><br>
+                NEXT_PUBLIC_SUPABASE_URL    → dev URL<br>
+                NEXT_PUBLIC_SUPABASE_ANON_KEY → dev anon
+              </div>
+            </div>
+            <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">4.</span> Enable Vercel Authentication on previews<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Project Settings → Deployment Protection → Enable</span></div>
+            <div><span style="color:#86EFAC;font-weight:700;">5.</span> Deploy — push to <code>main</code> and you're live<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">Every subsequent Pull Request gets a preview URL automatically</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /.deck -->
 
 <div class="progress"><div class="progress-bar" id="pb" style="width:11.1%;"></div></div>
 <div class="nav">
   <button id="prevBtn" onclick="go(-1)" disabled>← Prev</button>
-  <span class="counter" id="ctr">1 / 16</span>
+  <span class="counter" id="ctr">1 / 19</span>
   <button id="nextBtn" onclick="go(1)">Next →</button>
 </div>
 <div style="color:rgba(255,255,255,.28);font-size:11px;margin-top:9px;text-align:center;">← → arrow keys or buttons to navigate</div>
