@@ -589,7 +589,11 @@
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">🔀 Dev / Prod Separation</div>
           <div style="font-size:11px;color:var(--ice);line-height:1.5;">Two databases as the baseline safety layer</div>
         </div>
-        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;border-left:4px solid #1a1a2e;grid-column:1;">
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;border-left:4px solid var(--gold);grid-column:1;">
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">🚀 Builder Day 1</div>
+          <div style="font-size:11px;color:var(--ice);line-height:1.5;">Step-by-step: clone, env, schema, build</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;border-left:4px solid #1a1a2e;">
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">🐙 GitHub Setup</div>
           <div style="font-size:11px;color:var(--ice);line-height:1.5;">Repo structure, branch protection, secrets</div>
         </div>
@@ -995,7 +999,78 @@
 
 
 <!-- ══════════════════════════════════════════════════════
-     S17 — GITHUB SETUP
+     S17 — NEW BUILDER: STARTING A NEW PROJECT
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s17">
+  <div class="si">
+    <div class="hdr" style="background:var(--navy);"><h2>Starting a New Project: Builder Day 1</h2><span class="tag">Setup Guide</span></div>
+    <div class="bd">
+      <p class="lead">You have GitHub access and the dev Supabase credentials. Here's how to go from zero to building in under 30 minutes.</p>
+      <div class="g2" style="flex:1;gap:14px;">
+
+        <!-- LEFT: Steps 1–4 -->
+        <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-size:10.5px;line-height:1.8;">
+          <div style="color:var(--gold);font-weight:700;margin-bottom:10px;font-size:11px;">Get the repo running locally</div>
+          <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">1.</span> Clone the monorepo
+            <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+              git clone git@github.com:Add-Gusta/Add_arch.git<br>
+              cd Add_arch
+            </div>
+          </div>
+          <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">2.</span> Create your <code style="background:rgba(255,255,255,.1);padding:0 4px;border-radius:3px;">.env.local</code> — ask a teammate for dev credentials
+            <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+              NEXT_PUBLIC_SUPABASE_URL=https://&lt;dev-ref&gt;.supabase.co<br>
+              NEXT_PUBLIC_SUPABASE_ANON_KEY=&lt;dev-anon-key&gt;
+            </div>
+          </div>
+          <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">3.</span> Install dependencies and start the dev server
+            <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+              npm install<br>
+              npm run dev
+            </div>
+          </div>
+          <div><span style="color:#86EFAC;font-weight:700;">4.</span> Read <code style="background:rgba(255,255,255,.1);padding:0 4px;border-radius:3px;">CLAUDE.md</code> at the repo root before touching anything<br>
+            <span style="color:#475569;font-size:9.5px;margin-left:14px;">It tells you the conventions, schema names, and what not to touch</span>
+          </div>
+        </div>
+
+        <!-- RIGHT: Steps 5–8 + note -->
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0F172A;border-radius:9px;padding:14px 16px;color:#CBD5E1;font-size:10.5px;line-height:1.8;flex:1;">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:10px;font-size:11px;">Create your app</div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">5.</span> Create a branch and an app folder
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                git checkout -b feature/my-new-app<br>
+                mkdir apps/my-new-app
+              </div>
+            </div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">6.</span> Create an app-level <code style="background:rgba(255,255,255,.1);padding:0 4px;border-radius:3px;">CLAUDE.md</code> inside the folder<br>
+              <span style="color:#475569;font-size:9.5px;margin-left:14px;">Describe what the app does, its schema name (e.g. <code>my_app</code>),<br>its tables, and any business rules Claude should know</span>
+            </div>
+            <div style="margin-bottom:8px;"><span style="color:#86EFAC;font-weight:700;">7.</span> Create the schema migration
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                npx supabase migration new create_my_app_schema<br>
+                <span style="color:#475569;"># write SQL, then:</span><br>
+                npx supabase db push
+              </div>
+            </div>
+            <div><span style="color:#86EFAC;font-weight:700;">8.</span> Open Claude Code and start building
+              <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:6px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9.5px;color:#93C5FD;">
+                cd apps/my-new-app<br>
+                claude
+              </div>
+            </div>
+          </div>
+          <div class="note-green">✅ When ready: open a Pull Request to <code style="background:rgba(0,0,0,.08);padding:0 3px;border-radius:2px;">main</code>. Get one review. Merge. Vercel deploys automatically.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     S18 — GITHUB SETUP
 ══════════════════════════════════════════════════════ -->
 <div class="slide" id="s17">
   <div class="si">
@@ -1185,7 +1260,7 @@
 <div class="progress"><div class="progress-bar" id="pb" style="width:11.1%;"></div></div>
 <div class="nav">
   <button id="prevBtn" onclick="go(-1)" disabled>← Prev</button>
-  <span class="counter" id="ctr">1 / 19</span>
+  <span class="counter" id="ctr">1 / 20</span>
   <button id="nextBtn" onclick="go(1)">Next →</button>
 </div>
 <div style="color:rgba(255,255,255,.28);font-size:11px;margin-top:9px;text-align:center;">← → arrow keys or buttons to navigate</div>
