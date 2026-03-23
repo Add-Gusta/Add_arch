@@ -10,7 +10,7 @@
     --navy:   #1A0528;   /* Addvery deep purple-black */
     --blue:   #8030C8;   /* Addvery primary purple */
     --ice:    #D4B0F0;   /* Addvery light lavender */
-    --gold:   #E9D5FF;   /* Addvery light lavender accent on dark purple */
+    --gold:   #FFFFFF;   /* white accent — pops on dark purple */
     --white:  #FFFFFF;
     --offwh:  #F7F0FF;   /* very light purple tint */
     --dark:   #111827;
@@ -52,7 +52,7 @@
   .nav button:disabled { opacity: .28; cursor: default; }
   .nav .counter { color: rgba(255,255,255,.5); font-size: 13px; min-width: 64px; text-align: center; }
   .progress { width: min(1120px,96vw); height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; margin-top: 10px; }
-  .progress-bar { height: 100%; background: var(--gold); border-radius: 2px; transition: width .4s ease; }
+  .progress-bar { height: 100%; background: var(--blue); border-radius: 2px; transition: width .4s ease; }
 
   /* ── SHARED ── */
   .si { width: 100%; height: 100%; display: flex; flex-direction: column; }
@@ -72,7 +72,7 @@
   .cb ul li { padding-left: 13px; position: relative; margin-bottom: 3px; }
   .cb ul li::before { content: '›'; position: absolute; left: 0; color: var(--muted); }
 
-  .note { font-size: clamp(10px,.95vw,11.5px); color: var(--navy); background: #EFF6FF; border-radius: 6px; padding: 7px 13px; font-style: italic; flex-shrink: 0; }
+  .note { font-size: clamp(10px,.95vw,11.5px); color: var(--navy); background: #F3EAFF; border-radius: 6px; padding: 7px 13px; font-style: italic; flex-shrink: 0; }
   .note-green { font-size: clamp(10px,.95vw,11.5px); color: #065F46; background: var(--gbg); border-radius: 6px; padding: 7px 13px; flex-shrink: 0; }
   .note-amber { font-size: clamp(10px,.95vw,11.5px); color: #92400E; background: #FEF3C7; border-radius: 6px; padding: 7px 13px; flex-shrink: 0; }
 
@@ -229,7 +229,7 @@
               <p style="color:#064E3B;"><strong>Database:</strong> PostgreSQL via Supabase (auth, storage, realtime built-in). <strong>Hosting:</strong> Vercel (best Next.js DX). <strong>Why it wins:</strong> PostgreSQL supports schemas, views, and RLS — the foundation of our architecture. Supabase gives enterprise DB features without ops overhead. Vercel deploys are instant. Microsoft SSO via NextAuth. Free tier generous, scales to ~$170/mo.</p>
             </div>
           </div>
-          <div class="verdict" style="background:#EFF6FF;">
+          <div class="verdict" style="background:#F3EAFF;">
             <span class="vico">~</span>
             <div>
               <h4 style="color:#1E3A8A;">Azure PostgreSQL + Vercel — viable, but more work</h4>
@@ -294,7 +294,7 @@
           <div class="wf-connector"></div>
           <div class="wf-step">
             <div class="wf-num" style="background:var(--teal);">4</div>
-            <div class="wf-body"><h4>Automated checks run</h4><p>Claude Code Review, ESLint, tests, Atlas migration linting — findings appear on the Pull Requestin ~3 minutes.</p></div>
+            <div class="wf-body"><h4>Automated checks run</h4><p>Claude Code Review, ESLint, tests, Atlas migration linting — findings appear on the Pull Request in ~3 minutes.</p></div>
           </div>
           <div class="wf-connector"></div>
           <div class="wf-step">
@@ -336,7 +336,7 @@
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">The shared reviewer model</div>
           <div class="gcard">
-            <div class="gcard-h" style="background:var(--navy);">👥 Any Pull Requestneeds 1 approval from the reviewer pool</div>
+            <div class="gcard-h" style="background:var(--navy);">👥 Any Pull Request needs 1 approval from the reviewer pool</div>
             <div class="gcard-b">Not a specific person — whoever has capacity. Reviewers read Claude Code Review's findings on the Pull Request, check the Vercel preview URL, and approve or request changes. The AI does the code audit; humans make the judgment call.</div>
           </div>
           <div class="gcard">
@@ -350,7 +350,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px;text-transform:uppercase;letter-spacing:.7px;">Phased rollout — not all at once</div>
-          <div style="background:#F8FAFF;border-radius:9px;border:1px solid #E2E8F0;overflow:hidden;">
+          <div style="background:#FAF5FF;border-radius:9px;border:1px solid #E2D4F0;overflow:hidden;">
             <div style="display:grid;grid-template-columns:80px 1fr;font-size:11px;">
               <div style="background:var(--green);color:#fff;font-weight:700;padding:9px 10px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;">Month<br>1</div>
               <div style="padding:9px 12px;border-bottom:1px solid #E2E8F0;"><strong>Peer check only.</strong> Branch → Pull Request→ anyone glances → merge. Vercel preview URL is the review tool. Build the habit before adding automation.</div>
