@@ -7,17 +7,17 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --navy:   #1E2761;
-    --blue:   #2563EB;
-    --ice:    #CADCFC;
-    --gold:   #F59E0B;
+    --navy:   #1A0528;   /* Addvery deep purple-black */
+    --blue:   #8030C8;   /* Addvery primary purple */
+    --ice:    #D4B0F0;   /* Addvery light lavender */
+    --gold:   #E9D5FF;   /* Addvery light lavender accent on dark purple */
     --white:  #FFFFFF;
-    --offwh:  #F0F4FF;
+    --offwh:  #F7F0FF;   /* very light purple tint */
     --dark:   #111827;
     --muted:  #6B7280;
     --green:  #059669;
     --gbg:    #ECFDF5;
-    --purple: #7C3AED;
+    --purple: #9333EA;   /* Addvery bright accent purple */
     --teal:   #0D9488;
     --amber:  #D97706;
     --slate:  #475569;
@@ -25,7 +25,7 @@
   }
   body {
     font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #0a0a14;
+    background: #050505;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     min-height: 100vh; overflow: hidden;
   }
@@ -88,8 +88,8 @@
   #s1 .ab { width: 5px; height: 68px; background: var(--gold); border-radius: 3px; margin-bottom: 20px; }
   #s1 h1 { font-size: clamp(22px,3.5vw,40px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 12px; }
   #s1 .sub { font-size: clamp(12px,1.4vw,15px); color: var(--ice); margin-bottom: 22px; line-height: 1.5; }
-  #s1 .meta { font-size: 11px; color: #8BACD4; }
-  #s1 .rgt { background: rgba(37,99,235,.22); padding: 30px 18px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  #s1 .meta { font-size: 11px; color: #C4A0E8; }
+  #s1 .rgt { background: rgba(128,48,200,.25); padding: 30px 18px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
 
   /* ══ S2 WHY ══ */
   #s2 { background: var(--offwh); }
@@ -133,7 +133,7 @@
   .tree .file  { color: #CBD5E1; }
   .tree .key   { color: #86EFAC; font-weight: 700; }
   .tree .dim   { color: #475569; }
-  .tree .gold  { color: #FCD34D; }
+  .tree .gold  { color: #E9D5FF; }
   .claude-note { background: #fff; border-radius: 9px; padding: 12px 15px; box-shadow: 0 2px 12px rgba(0,0,0,.07); flex: 1; }
   .claude-note h4 { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 7px; padding-bottom: 6px; border-bottom: 1px solid #E5E7EB; }
   .cfile { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 8px; }
@@ -174,7 +174,7 @@
   #s9 .ci { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 9px; }
   #s9 .ck { color: var(--gold); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
   #s9 .ci p { color: rgba(255,255,255,.9); font-size: clamp(11px,1.1vw,13px); line-height: 1.4; }
-  #s9 .rgt { background: rgba(37,99,235,.18); padding: 32px 22px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+  #s9 .rgt { background: rgba(128,48,200,.18); padding: 32px 22px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
   #s9 .ns { display: flex; gap: 13px; align-items: flex-start; }
   #s9 .nn { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: var(--navy); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   #s9 .nt { color: var(--ice); font-size: clamp(11px,1.05vw,12.5px); line-height: 1.4; }
@@ -360,7 +360,7 @@
               <div style="padding:9px 12px;color:var(--muted);"><strong>Full DevOps.</strong> Only if compliance requirements or 15+ active builders demand it. The single greatest threat is builders losing motivation — never add process that exceeds the actual risk.</div>
             </div>
           </div>
-          <div class="note-amber">⚠️ <strong>The biggest governance risk isn't a production bug</strong> — it's builders stopping because the process feels too heavy. The database safety layer (schema isolation, RLS, dev/prod separation) protects against worst-case scenarios at every governance level, making lighter oversight viable.</div>
+          <div class="note-amber">⚠️ <strong>The biggest governance risk isn't a production bug</strong> — it's builders stopping because the process feels too heavy. The database safety layer (schema isolation, RLS, dev/prod separation) prevents a specific class of disaster: data loss, cross-app corruption, unauthorized production changes. Application-level quality — logic errors, bad calculations, workflow bugs — is what the governance layer above it exists to catch.</div>
         </div>
       </div>
     </div>
@@ -410,6 +410,7 @@
             <div><h4>Human peer review (shared responsibility)</h4><p>Reads Claude's findings, checks the Vercel preview, approves or requests changes. Does not require technical expertise — the AI surfaces what needs attention.</p></div>
           </div>
           <div class="note" style="margin-top:auto;">💡 <strong>This is why lighter governance is viable.</strong> Schema isolation, RLS, and dev/prod separation protect against the most dangerous failure modes — data loss, cross-app corruption, accidental production changes — regardless of who reviewed the code. The governance layer catches quality and logic issues, not catastrophic ones.</div>
+          <div class="note-amber" style="margin-top:6px;">🧪 <strong>On automated testing:</strong> not prescribed at tier 1. Claude Code Review + the Vercel preview URL is the quality gate for early-stage internal tools. Formal test suites become relevant when an app handles critical financial calculations, payroll, or compliance logic — at that point, write tests that encode the business rules.</div>
         </div>
       </div>
     </div>
@@ -458,7 +459,7 @@
           </div>
         </div>
       </div>
-      <div class="note">💡 If Timesheets restructures its internal tables, it updates the view. Invoicing never breaks — no coordinated release needed. PostgreSQL handles 15+ schemas without issue. This is the same pattern Microsoft Dataverse uses for Power Platform.</div>
+      <div class="note">💡 If Timesheets restructures its internal tables, it updates the view. Invoicing never breaks — no coordinated release needed. PostgreSQL handles 15+ schemas without issue. This is the same pattern Microsoft Dataverse uses for Power Platform. <strong>When to split:</strong> a domain needs its own compliance or retention rules, performance contention between schemas becomes measurable, or one domain becomes operationally critical enough to require independent deployment.</div>
     </div>
   </div>
 </div>
@@ -519,6 +520,7 @@
     <div class="bd" style="display:flex;align-items:center;justify-content:center;">
       <div style="max-width:800px;text-align:center;">
         <p style="font-size:clamp(14px,1.8vw,18px);color:var(--navy);line-height:1.6;font-weight:500;">Stepan is building the entry point (insider.addvery.com) that handles Microsoft SSO and routes users to apps based on role — works with this architecture regardless of implementation approach.</p>
+        <p style="font-size:clamp(11px,1.2vw,13px);color:var(--muted);line-height:1.6;margin-top:16px;max-width:640px;margin-left:auto;margin-right:auto;">The canonical identity flow: <strong>Azure Entra ID</strong> is the identity provider → the gateway handles SSO and session issuance → individual apps trust the session. The exact brokering mechanism is an open design decision. Until it is resolved, this is the one part of the architecture that is not fully specified.</p>
       </div>
     </div>
   </div>
@@ -593,7 +595,7 @@
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">🚀 Builder Day 1</div>
           <div style="font-size:11px;color:var(--ice);line-height:1.5;">Step-by-step: clone, env, schema, build</div>
         </div>
-        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;border-left:4px solid #1a1a2e;">
+        <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:16px 18px;border-left:4px solid #1A0528;">
           <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px;">🐙 GitHub Setup</div>
           <div style="font-size:11px;color:var(--ice);line-height:1.5;">Repo structure, branch protection, secrets</div>
         </div>
@@ -672,7 +674,7 @@
           <div>- TypeScript strict mode</div>
           <div style="margin-top:8px;"><span style="color:#86EFAC;">## Database Rules</span></div>
           <div>- NEVER connect to prod directly</div>
-          <div>- Use <span style="color:#FCD34D;">DATABASE_URL</span> env var</div>
+          <div>- Use <span style="color:#E9D5FF;">DATABASE_URL</span> env var</div>
           <div>- All schema changes via migrations</div>
           <div>- Never hardcode credentials</div>
           <div style="margin-top:8px;"><span style="color:#86EFAC;">## Naming Conventions</span></div>
@@ -693,7 +695,7 @@
           <div>- timesheets (user_id, week_start, status)</div>
           <div>- approvals (timesheet_id, approver_id)</div>
           <div style="margin-top:8px;"><span style="color:#86EFAC;">## Views We Expose</span></div>
-          <div><span style="color:#FCD34D;">v_billable_hours_for_invoicing</span></div>
+          <div><span style="color:#E9D5FF;">v_billable_hours_for_invoicing</span></div>
           <div>SELECT project_id, SUM(hours), billing_rate</div>
           <div>FROM timesheets.time_entries</div>
           <div>JOIN core.projects USING (project_id)</div>
@@ -1074,7 +1076,7 @@
 ══════════════════════════════════════════════════════ -->
 <div class="slide" id="s17">
   <div class="si">
-    <div class="hdr" style="background:#1a1a2e;"><h2>GitHub Setup: Repo, Branches &amp; Secrets</h2><span class="tag">Setup Guide</span></div>
+    <div class="hdr" style="background:#1A0528;"><h2>GitHub Setup: Repo, Branches &amp; Secrets</h2><span class="tag">Setup Guide</span></div>
     <div class="bd">
       <div class="g2" style="flex:1;gap:14px;">
 
@@ -1237,10 +1239,10 @@
             <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">2.</span> Import GitHub repository<br><span style="color:#475569;font-size:9.5px;margin-left:14px;">New Project → Import Git Repository → select monorepo<br>Framework: Next.js (auto-detected)</span></div>
             <div style="margin-bottom:7px;"><span style="color:#86EFAC;font-weight:700;">3.</span> Configure environment variables
               <div style="background:rgba(255,255,255,.06);border-radius:5px;padding:7px 10px;margin-top:4px;font-family:'Consolas',monospace;font-size:9px;color:#93C5FD;line-height:1.7;">
-                <span style="color:#FCD34D;"># Production scope only:</span><br>
+                <span style="color:#E9D5FF;"># Production scope only:</span><br>
                 NEXT_PUBLIC_SUPABASE_URL    → prod URL<br>
                 NEXT_PUBLIC_SUPABASE_ANON_KEY → prod anon<br>
-                <span style="color:#FCD34D;"># Preview + Development scope:</span><br>
+                <span style="color:#E9D5FF;"># Preview + Development scope:</span><br>
                 NEXT_PUBLIC_SUPABASE_URL    → dev URL<br>
                 NEXT_PUBLIC_SUPABASE_ANON_KEY → dev anon
               </div>
@@ -1255,12 +1257,46 @@
   </div>
 </div>
 
+
+<!-- ══════════════════════════════════════════════════════
+     S21 — THANKS
+══════════════════════════════════════════════════════ -->
+<div class="slide" id="s21">
+  <div class="si" style="background:var(--navy);">
+    <div class="bd" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;">
+      <div style="width:5px;height:60px;background:var(--gold);border-radius:3px;margin-bottom:28px;"></div>
+      <div style="font-size:13px;font-weight:600;color:var(--ice);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Díky za čas a připomínky</div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-bottom:36px;">
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Slavka</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Filip</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Patrik</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Simca</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Renca</div>
+        </div>
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 22px;text-align:center;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">Míša</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:rgba(202,220,252,.5);">Vaše připomínky tenhle návrh posunuly dál 🙏</div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /.deck -->
 
 <div class="progress"><div class="progress-bar" id="pb" style="width:11.1%;"></div></div>
 <div class="nav">
   <button id="prevBtn" onclick="go(-1)" disabled>← Prev</button>
-  <span class="counter" id="ctr">1 / 20</span>
+  <span class="counter" id="ctr">1 / 21</span>
   <button id="nextBtn" onclick="go(1)">Next →</button>
 </div>
 <div style="color:rgba(255,255,255,.28);font-size:11px;margin-top:9px;text-align:center;">← → arrow keys or buttons to navigate</div>
